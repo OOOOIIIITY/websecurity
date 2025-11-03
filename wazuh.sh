@@ -7,6 +7,17 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$SCRIPT_DIR/config"
+WAZUH_VERSION="4.7.0"
+
+# Determine which docker compose command to use
+if docker compose version &> /dev/null; then
+    DOCKER_COMPOSE="docker compose"
+elif command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+else
+    echo "Error: Neither 'docker compose' nor 'docker-compose' found"
+    exit 1
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -34,8 +45,9 @@ check_docker() {
         exit 1
     fi
     
-    if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-        print_error "Docker Compose is not installed. Please install Docker Compose first."
+    # Docker Compose check is done at script start
+    if [ -z "$DOCKER_COMPOSE" ]; then
+        print_error "Docker Compose is not available."
         exit 1
     fi
 }
@@ -51,7 +63,7 @@ generate_certs() {
     # Download certificate generation tool
     if [ ! -f "wazuh-certs-tool.sh" ]; then
         print_info "Downloading certificate generation tool..."
-        curl -sO https://packages.wazuh.com/4.7/wazuh-certs-tool.sh
+        curl -sO "https://packages.wazuh.com/${WAZUH_VERSION%.*}/wazuh-certs-tool.sh"
         chmod +x wazuh-certs-tool.sh
     fi
     
@@ -341,7 +353,7 @@ install() {
     fi
     
     print_info "Starting Wazuh containers..."
-    docker-compose up -d
+    $DOCKER_COMPOSE up -d
     
     print_info "Waiting for services to be ready..."
     sleep 30
@@ -354,44 +366,46 @@ install() {
     print_info "  Username: admin"
     print_info "  Password: SecretPassword"
     print_info ""
+    print_info "⚠️  WARNING: Change these default passwords immediately in production!"
+    print_info ""
     print_info "Use './wazuh.sh status' to check the status of services"
 }
 
 # Start Wazuh
 start() {
     print_info "Starting Wazuh..."
-    docker-compose start
+    $DOCKER_COMPOSE start
     print_info "Wazuh started successfully"
 }
 
 # Stop Wazuh
 stop() {
     print_info "Stopping Wazuh..."
-    docker-compose stop
+    $DOCKER_COMPOSE stop
     print_info "Wazuh stopped successfully"
 }
 
 # Restart Wazuh
 restart() {
     print_info "Restarting Wazuh..."
-    docker-compose restart
+    $DOCKER_COMPOSE restart
     print_info "Wazuh restarted successfully"
 }
 
 # Check status
 status() {
     print_info "Checking Wazuh status..."
-    docker-compose ps
+    $DOCKER_COMPOSE ps
 }
 
 # View logs
 logs() {
     if [ -z "$2" ]; then
         print_info "Showing logs for all services..."
-        docker-compose logs -f
+        $DOCKER_COMPOSE logs -f
     else
         print_info "Showing logs for $2..."
-        docker-compose logs -f "$2"
+        $DOCKER_COMPOSE logs -f "$2"
     fi
 }
 
@@ -402,7 +416,7 @@ uninstall() {
     
     if [ "$confirm" == "yes" ]; then
         print_info "Uninstalling Wazuh..."
-        docker-compose down -v
+        $DOCKER_COMPOSE down -v
         print_info "Wazuh uninstalled successfully"
     else
         print_info "Uninstall cancelled"
@@ -412,8 +426,8 @@ uninstall() {
 # Update Wazuh
 update() {
     print_info "Updating Wazuh..."
-    docker-compose pull
-    docker-compose up -d
+    $DOCKER_COMPOSE pull
+    $DOCKER_COMPOSE up -d
     print_info "Wazuh updated successfully"
 }
 

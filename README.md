@@ -126,7 +126,12 @@ The `wazuh.sh` script provides easy management of your Wazuh deployment:
 - Username: `wazuh-wui`
 - Password: `MyS3cr37P450r.*-`
 
-⚠️ **Security Note**: Change these default passwords in production environments!
+⚠️ **CRITICAL SECURITY WARNING**: 
+- These are DEFAULT passwords for demonstration/testing purposes only
+- You MUST change these passwords immediately after installation, especially for production use
+- Use strong passwords: minimum 16 characters with mixed case, numbers, and symbols
+- Consider using environment variables or Docker secrets for production deployments
+- See `.env.example` for configuration template
 
 ### Changing Passwords
 

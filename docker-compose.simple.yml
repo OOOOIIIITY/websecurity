@@ -2,7 +2,12 @@ version: '3.8'
 
 # Simplified Single-Node Wazuh Deployment
 # This is a minimal setup for testing and development
-# For production, use the full docker-compose.yml
+# For production, use the full docker-compose.yml with proper security
+#
+# ⚠️ SECURITY WARNING: This configuration disables security features for simplicity
+# DO NOT use in production environments
+#
+# Version: 4.7.0
 
 services:
   wazuh-manager:

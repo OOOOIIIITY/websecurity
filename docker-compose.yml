@@ -1,5 +1,17 @@
 version: '3.8'
 
+# Wazuh Docker Compose Configuration
+# 
+# ⚠️ SECURITY WARNING:
+# This configuration uses default passwords for demonstration purposes.
+# For production use:
+# 1. Copy .env.example to .env and set strong passwords
+# 2. Replace self-signed certificates with proper SSL certificates
+# 3. Restrict network access using firewalls
+# 4. Review and apply security best practices from ADVANCED.md
+#
+# Version: 4.7.0
+
 services:
   wazuh.manager:
     image: wazuh/wazuh-manager:4.7.0
