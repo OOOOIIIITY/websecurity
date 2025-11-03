@@ -64,6 +64,17 @@ generate_certs() {
     if [ ! -f "wazuh-certs-tool.sh" ]; then
         print_info "Downloading certificate generation tool..."
         curl -sO "https://packages.wazuh.com/${WAZUH_VERSION%.*}/wazuh-certs-tool.sh"
+        
+        # Verify the download succeeded
+        if [ ! -f "wazuh-certs-tool.sh" ]; then
+            print_error "Failed to download certificate generation tool"
+            exit 1
+        fi
+        
+        # Note: For production, you should verify the checksum
+        # Example: echo "EXPECTED_SHA256 wazuh-certs-tool.sh" | sha256sum -c -
+        print_warning "Certificate tool downloaded. In production, verify checksums from official docs."
+        
         chmod +x wazuh-certs-tool.sh
     fi
     
@@ -83,7 +94,10 @@ EOF
     
     # Generate certificates
     print_info "Generating certificates..."
-    bash wazuh-certs-tool.sh -A
+    if ! bash wazuh-certs-tool.sh -A; then
+        print_error "Certificate generation failed"
+        exit 1
+    fi
     
     # Extract certificates
     if [ -f "wazuh-certificates.tar" ]; then
@@ -434,7 +448,10 @@ update() {
 # Backup Wazuh data
 backup() {
     BACKUP_DIR="${BACKUP_DIR:-./backups}"
-    BACKUP_FILE="$BACKUP_DIR/wazuh-backup-$(date +%Y%m%d-%H%M%S).tar.gz"
+    local timestamp
+    timestamp=$(date +%Y%m%d-%H%M%S)
+    local backup_filename="wazuh-backup-${timestamp}.tar.gz"
+    BACKUP_FILE="$BACKUP_DIR/$backup_filename"
     
     print_info "Creating backup..."
     mkdir -p "$BACKUP_DIR"
@@ -448,7 +465,7 @@ backup() {
         -v wazuh-indexer-data:/backup/indexer-data \
         -v "$(pwd)/$BACKUP_DIR:/output" \
         alpine \
-        tar czf "/output/$(basename $BACKUP_FILE)" -C /backup .
+        tar czf "/output/$backup_filename" -C /backup .
     
     print_info "Backup created: $BACKUP_FILE"
 }

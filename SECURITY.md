@@ -33,7 +33,24 @@ We recommend always using the latest stable version of Wazuh. This repository cu
 
 ## Security Best Practices
 
-### 1. Change Default Passwords Immediately
+### 1. Verify Downloaded Files
+
+The installation script downloads the Wazuh certificate generation tool. For production deployments, verify file integrity:
+
+```bash
+# After download, verify the checksum
+cd config/wazuh_indexer_ssl_certs
+sha256sum wazuh-certs-tool.sh
+
+# Compare with official checksum from:
+# https://documentation.wazuh.com/current/deployment-options/docker/wazuh-container.html
+
+# Only proceed if checksums match
+```
+
+**Note**: The installation script includes a warning about this. Always verify checksums for production use.
+
+### 2. Change Default Passwords Immediately
 
 **For the Indexer (Dashboard login):**
 ```bash
@@ -57,7 +74,7 @@ environment:
 - Avoid common words or patterns
 - Use a password manager
 
-### 2. Replace Self-Signed Certificates
+### 3. Replace Self-Signed Certificates
 
 The installation generates self-signed certificates for testing. For production:
 
@@ -70,7 +87,7 @@ Alternatively, use Let's Encrypt:
 certbot certonly --standalone -d your-wazuh-domain.com
 ```
 
-### 3. Network Security
+### 4. Network Security
 
 **Firewall Rules:**
 ```bash
@@ -88,7 +105,7 @@ ufw enable
 - Don't expose unnecessary ports
 - Consider using a reverse proxy (nginx, Traefik)
 
-### 4. Use Environment Variables or Secrets
+### 5. Use Environment Variables or Secrets
 
 Instead of hardcoding credentials in `docker-compose.yml`:
 
@@ -111,7 +128,7 @@ services:
       - wazuh_api_password
 ```
 
-### 5. Regular Updates
+### 6. Regular Updates
 
 Keep Wazuh updated to receive security patches:
 ```bash
@@ -122,7 +139,7 @@ Subscribe to Wazuh security announcements:
 - [Wazuh Security Advisories](https://wazuh.com/security-advisories/)
 - [GitHub Security Advisories](https://github.com/wazuh/wazuh/security/advisories)
 
-### 6. Access Control
+### 7. Access Control
 
 **Implement Role-Based Access Control (RBAC):**
 - Create separate users for different team members
@@ -138,7 +155,7 @@ docker exec -it wazuh-manager /var/ossec/bin/wazuh-api-user create \
     -p "StrongPassword123!"
 ```
 
-### 7. Audit Logging
+### 8. Audit Logging
 
 Enable comprehensive audit logging:
 ```xml
@@ -152,7 +169,7 @@ Review logs regularly:
 ./wazuh.sh logs wazuh.manager | grep -i "security\|error\|critical"
 ```
 
-### 8. Data Encryption
+### 9. Data Encryption
 
 **At Rest:**
 - Use encrypted volumes for Docker
@@ -164,7 +181,7 @@ Review logs regularly:
 - Verify certificate validation is enabled
 - Use strong cipher suites
 
-### 9. Secure Backups
+### 10. Secure Backups
 
 ```bash
 # Create encrypted backup
@@ -183,7 +200,7 @@ sha256sum backups/wazuh-backup-*.tar.gz > backups/checksums.txt
 - Implement backup retention policies
 - Keep backups offline or in separate networks
 
-### 10. Monitoring and Alerting
+### 11. Monitoring and Alerting
 
 Monitor the Wazuh infrastructure itself:
 - Set up health checks
@@ -191,14 +208,14 @@ Monitor the Wazuh infrastructure itself:
 - Alert on failed authentication attempts
 - Track configuration changes
 
-### 11. Principle of Least Privilege
+### 12. Principle of Least Privilege
 
 - Run containers as non-root users where possible
 - Limit container capabilities
 - Use read-only file systems where applicable
 - Restrict network access between containers
 
-### 12. Security Hardening Checklist
+### 13. Security Hardening Checklist
 
 Before production deployment:
 
