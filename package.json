@@ -1,0 +1,19 @@
+{
+  "name": "websecurity",
+  "version": "1.0.0",
+  "description": "A demonstration of web security best practices",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": ["security", "web", "express"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "cors": "^2.8.5"
+  }
+}
