@@ -1,0 +1,33 @@
+# Wazuh configuration and data directories
+config/wazuh_indexer_ssl_certs/
+config/wazuh_cluster/
+config/wazuh_indexer/
+config/wazuh_dashboard/
+
+# Backup files
+backups/
+
+# Docker volumes
+volumes/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+Thumbs.db
