@@ -8,12 +8,22 @@ const PORT = process.env.PORT || 3000;
 
 // Security middleware
 app.use(helmet()); // Adds various security headers
-app.use(express.json({ limit: '10mb' })); // Limit JSON payload size
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '100kb' })); // Limit JSON payload size to prevent DoS
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
-// CORS configuration
+// CORS configuration - supports multiple origins
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+  : ['http://localhost:3000'];
+
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
@@ -45,10 +55,17 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Not Found' });
 });
 
-// Error handler
+// Error handler - doesn't expose sensitive information
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+  // Log minimal error details (avoid logging full stack in production)
+  console.error(`Error: ${err.message}`);
+  
+  // In production, don't expose error details
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  res.status(500).json({ 
+    error: 'Something went wrong!',
+    ...(isDevelopment && { details: err.message })
+  });
 });
 
 app.listen(PORT, () => {

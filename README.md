@@ -54,7 +54,7 @@ The server will run on port 3000 (or the PORT environment variable if set).
 - Prevents unauthorized cross-origin requests
 
 ### 4. Input Validation
-- Request payload size limits (10MB)
+- Request payload size limits (100KB)
 - Prevents memory exhaustion attacks
 
 ### 5. Error Handling
@@ -65,7 +65,8 @@ The server will run on port 3000 (or the PORT environment variable if set).
 ## Environment Variables
 
 - `PORT` - Server port (default: 3000)
-- `ALLOWED_ORIGINS` - CORS allowed origins (default: http://localhost:3000)
+- `ALLOWED_ORIGINS` - CORS allowed origins, comma-separated (default: http://localhost:3000)
+- `NODE_ENV` - Set to 'development' to see detailed error messages
 
 ## Common Web Security Vulnerabilities (Prevented)
 
